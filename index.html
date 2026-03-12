@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATS CV Scanner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="background-glow background-glow-left" aria-hidden="true"></div>
+  <div class="background-glow background-glow-right" aria-hidden="true"></div>
+
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">ATS-inspired CV checker</p>
+      <h1>Upload a PDF CV and check if your target keywords are really there.</h1>
+      <p class="intro">
+        This scanner reads the text inside a resume PDF, compares it with the words or phrases you enter,
+        and shows a quick ATS-style match summary.
+      </p>
+    </section>
+
+    <section class="panel" aria-label="ATS scanner form">
+      <div class="field-group">
+        <label class="field-label" for="cvFile">CV PDF file</label>
+        <input id="cvFile" name="cvFile" type="file" accept="application/pdf">
+        <p class="field-help">Choose a resume in PDF format.</p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="keywords">Keywords to search</label>
+        <textarea
+          id="keywords"
+          name="keywords"
+          rows="8"
+          placeholder="Python, SQL, Power BI&#10;Communication&#10;Project management"
+        ></textarea>
+        <p class="field-help">Use commas or new lines. Phrases are supported too.</p>
+      </div>
+
+      <div class="actions">
+        <button id="analyzeButton" type="button">Analyze CV</button>
+        <p id="statusMessage" class="status" aria-live="polite">Waiting for a PDF and your keywords.</p>
+      </div>
+    </section>
+
+    <section id="results" class="results hidden" aria-label="Analysis results">
+      <div class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-label">Match rate</span>
+          <strong id="matchRate" class="stat-value">0%</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Keywords found</span>
+          <strong id="foundCount" class="stat-value">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Keywords searched</span>
+          <strong id="keywordCount" class="stat-value">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Total mentions</span>
+          <strong id="mentionCount" class="stat-value">0</strong>
+        </article>
+      </div>
+
+      <div class="details-grid">
+        <article class="detail-card">
+          <h2>Found keywords</h2>
+          <p id="foundSummary" class="detail-summary">No analysis yet.</p>
+          <div id="foundKeywords" class="chip-list"></div>
+        </article>
+
+        <article class="detail-card">
+          <h2>Missing keywords</h2>
+          <p id="missingSummary" class="detail-summary">No analysis yet.</p>
+          <div id="missingKeywords" class="chip-list"></div>
+        </article>
+      </div>
+
+      <article class="detail-card text-card">
+        <h2>Document details</h2>
+        <div id="documentFacts" class="fact-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
