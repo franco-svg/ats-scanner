@@ -13,6 +13,31 @@ const missingSummary = document.getElementById("missingSummary");
 const foundKeywords = document.getElementById("foundKeywords");
 const missingKeywords = document.getElementById("missingKeywords");
 const documentFacts = document.getElementById("documentFacts");
+const themeSwitch = document.getElementById("themeSwitch");
+const THEME_STORAGE_KEY = "ats-theme";
+
+initializeTheme();
+
+if (themeSwitch) {
+  themeSwitch.addEventListener("change", () => {
+    const isDarkMode = themeSwitch.checked;
+    document.body.classList.toggle("dark-mode", isDarkMode);
+    localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? "dark" : "light");
+  });
+}
+
+function initializeTheme() {
+  if (!themeSwitch) {
+    return;
+  }
+
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const shouldUseDarkMode = savedTheme ? savedTheme === "dark" : prefersDarkMode;
+
+  themeSwitch.checked = shouldUseDarkMode;
+  document.body.classList.toggle("dark-mode", shouldUseDarkMode);
+}
 
 const workerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
