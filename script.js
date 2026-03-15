@@ -1,6 +1,6 @@
 const sectionLinks = document.querySelectorAll("[data-section-link]");
 const sections = document.querySelectorAll(".content-section");
-const toolsButton = document.getElementById("toolsButton");
+const toolsButton = document.querySelector(".nav-button");
 const navDropdown = document.querySelector(".nav-dropdown");
 
 const fileInput = document.getElementById("cvFile");
@@ -25,9 +25,6 @@ const jobStatusMessage = document.getElementById("jobStatusMessage");
 const jobResults = document.getElementById("jobResults");
 const jobSummary = document.getElementById("jobSummary");
 const jobKeywords = document.getElementById("jobKeywords");
-const jobKeywordsOutput = document.getElementById("jobKeywordsOutput");
-const copyJobKeywordsButton = document.getElementById("copyJobKeywordsButton");
-const copyJobStatus = document.getElementById("copyJobStatus");
 
 const themeSwitch = document.getElementById("themeSwitch");
 const THEME_STORAGE_KEY = "ats-theme";
@@ -94,9 +91,6 @@ function showSection(sectionId) {
   sectionLinks.forEach((link) => {
     link.classList.toggle("active", link.dataset.sectionLink === fallbackSection);
   });
-
-  const toolsSectionIds = new Set(["ats-scanner", "job-analyzer"]);
-  navDropdown?.classList.toggle("tools-active", toolsSectionIds.has(fallbackSection));
 }
 
 function initializeToolsMenuAccessibility() {
@@ -172,29 +166,6 @@ analyzeButton.addEventListener("click", async () => {
   }
 });
 
-
-if (copyJobKeywordsButton) {
-  copyJobKeywordsButton.addEventListener("click", async () => {
-    const value = jobKeywordsOutput.value.trim();
-
-    if (!value) {
-      updateCopyStatus("Generate keywords first.", true);
-      return;
-    }
-
-    const copied = await copyToClipboard(value);
-
-    if (copied) {
-      updateCopyStatus("Copied. You can paste this directly into ATS Scanner.");
-      return;
-    }
-
-    jobKeywordsOutput.focus();
-    jobKeywordsOutput.select();
-    updateCopyStatus("Clipboard is blocked in this browser. Text selected for manual copy.", true);
-  });
-}
-
 analyzeJobButton.addEventListener("click", () => {
   const rawText = jobProposalInput.value.trim();
 
@@ -207,15 +178,12 @@ analyzeJobButton.addEventListener("click", () => {
 
   if (rankedWords.length === 0) {
     updateJobStatus("No relevant keywords were detected. Try a longer description.", true);
-    updateCopyStatus("Generate keywords first.");
-    jobKeywordsOutput.value = "";
     jobResults.classList.add("hidden");
     return;
   }
 
   renderJobResults(rankedWords);
   updateJobStatus("Analysis complete. Use these words to tailor your CV.");
-  updateCopyStatus("Ready to copy.");
 });
 
 function updateStatus(message, isError = false) {
@@ -226,11 +194,6 @@ function updateStatus(message, isError = false) {
 function updateJobStatus(message, isError = false) {
   jobStatusMessage.textContent = message;
   jobStatusMessage.style.color = isError ? "var(--danger)" : "var(--muted)";
-}
-
-function updateCopyStatus(message, isError = false) {
-  copyJobStatus.textContent = message;
-  copyJobStatus.style.color = isError ? "var(--danger)" : "var(--muted)";
 }
 
 function toggleBusyState(isBusy) {
@@ -428,9 +391,6 @@ function renderJobResults(items) {
   jobSummary.textContent = `Top ${items.length} relevant words detected from the job proposal.`;
   jobKeywords.innerHTML = "";
 
-  const newlineOutput = items.map((item) => item.word).join("\n");
-  jobKeywordsOutput.value = newlineOutput;
-
   items.forEach((item) => {
     const chip = document.createElement("span");
     chip.className = "chip found";
@@ -447,18 +407,3 @@ function renderJobResults(items) {
 const JOB_STOPWORDS = new Set([
   "about", "above", "after", "again", "against", "algo", "algun", "algunas", "algunos", "all", "also", "and", "any", "are", "around", "asa", "asi", "at", "based", "been", "being", "below", "between", "both", "but", "cada", "como", "con", "consider", "consigo", "could", "cuando", "de", "del", "desde", "details", "did", "does", "doing", "don", "during", "each", "either", "el", "ella", "ellas", "ellos", "empleo", "en", "entre", "era", "eres", "es", "esa", "esas", "eso", "esos", "esta", "estado", "estamos", "estan", "estar", "estas", "este", "esto", "estos", "experience", "for", "from", "further", "get", "had", "has", "have", "having", "her", "here", "hers", "herself", "him", "himself", "his", "how", "into", "its", "itself", "job", "la", "las", "le", "les", "lo", "los", "mas", "me", "mi", "mis", "more", "most", "muy", "must", "need", "nuestra", "nuestro", "o", "of", "on", "or", "otra", "other", "our", "out", "para", "pero", "por", "porque", "position", "puesto", "que", "quien", "required", "requirements", "role", "se", "sea", "ser", "si", "sin", "sobre", "some", "su", "sus", "take", "than", "that", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "tu", "tus", "un", "una", "under", "until", "very", "was", "we", "were", "what", "when", "where", "which", "while", "who", "with", "you", "your", "yours", "yourself", "yourselves"
 ]);
-
-
-async function copyToClipboard(text) {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-
-    return false;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-}

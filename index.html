@@ -15,7 +15,7 @@
       <nav class="ribbon" aria-label="Main navigation">
         <a href="#home" class="nav-link active" data-section-link="home">Home</a>
         <div class="nav-dropdown" aria-label="Tools menu">
-          <button id="toolsButton" class="nav-link nav-button" type="button" aria-haspopup="true" aria-expanded="false">Tools</button>
+          <button class="nav-link nav-button" type="button" aria-haspopup="true" aria-expanded="false">Tools</button>
           <div class="dropdown-menu" role="menu">
             <a href="#ats-scanner" class="dropdown-link" data-section-link="ats-scanner" role="menuitem">ATS Scanner</a>
             <a href="#job-analyzer" class="dropdown-link" data-section-link="job-analyzer" role="menuitem">Job Analyzer</a>
@@ -171,16 +171,6 @@
           <h2>Most relevant keywords</h2>
           <p id="jobSummary" class="detail-summary">No analysis yet.</p>
           <div id="jobKeywords" class="chip-list"></div>
-        </article>
-
-        <article class="detail-card">
-          <h2>Ready to paste in ATS Scanner</h2>
-          <p class="detail-summary">One keyword per line for direct copy/paste.</p>
-          <textarea id="jobKeywordsOutput" class="keywords-output" rows="12" readonly></textarea>
-          <div class="actions copy-actions">
-            <button id="copyJobKeywordsButton" type="button">Copy keywords</button>
-            <p id="copyJobStatus" class="status" aria-live="polite">Generate keywords first.</p>
-          </div>
         </article>
       </section>
     </section>

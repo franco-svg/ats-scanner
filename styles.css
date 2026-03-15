@@ -115,10 +115,10 @@ body {
 }
 
 .nav-link:hover,
+.nav-button:hover,
 .dropdown-link:hover,
 .nav-link.active,
-.dropdown-link.active,
-.nav-dropdown.tools-active .nav-button {
+.dropdown-link.active {
   background: var(--surface-strong);
   color: var(--ink);
 }
