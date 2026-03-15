@@ -1,3 +1,8 @@
+const sectionLinks = document.querySelectorAll("[data-section-link]");
+const sections = document.querySelectorAll(".content-section");
+const toolsButton = document.querySelector(".nav-button");
+const navDropdown = document.querySelector(".nav-dropdown");
+
 const fileInput = document.getElementById("cvFile");
 const keywordsInput = document.getElementById("keywords");
 const analyzeButton = document.getElementById("analyzeButton");
@@ -13,10 +18,21 @@ const missingSummary = document.getElementById("missingSummary");
 const foundKeywords = document.getElementById("foundKeywords");
 const missingKeywords = document.getElementById("missingKeywords");
 const documentFacts = document.getElementById("documentFacts");
+
+const jobProposalInput = document.getElementById("jobProposal");
+const analyzeJobButton = document.getElementById("analyzeJobButton");
+const jobStatusMessage = document.getElementById("jobStatusMessage");
+const jobResults = document.getElementById("jobResults");
+const jobSummary = document.getElementById("jobSummary");
+const jobKeywords = document.getElementById("jobKeywords");
+
 const themeSwitch = document.getElementById("themeSwitch");
 const THEME_STORAGE_KEY = "ats-theme";
+const MAX_JOB_KEYWORDS = 15;
 
 initializeTheme();
+initializeNavigation();
+initializeToolsMenuAccessibility();
 
 if (themeSwitch) {
   themeSwitch.addEventListener("change", () => {
@@ -37,6 +53,68 @@ function initializeTheme() {
 
   themeSwitch.checked = shouldUseDarkMode;
   document.body.classList.toggle("dark-mode", shouldUseDarkMode);
+}
+
+function initializeNavigation() {
+  const initialSection = window.location.hash.replace("#", "") || "home";
+  showSection(initialSection);
+
+  sectionLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = link.dataset.sectionLink;
+      showSection(target);
+      window.history.replaceState(null, "", `#${target}`);
+    });
+  });
+}
+
+function showSection(sectionId) {
+  let sectionExists = false;
+
+  sections.forEach((section) => {
+    const isActive = section.id === sectionId;
+    section.classList.toggle("active", isActive);
+    if (isActive) {
+      sectionExists = true;
+    }
+  });
+
+  const fallbackSection = sectionExists ? sectionId : "home";
+
+  if (!sectionExists) {
+    sections.forEach((section) => {
+      section.classList.toggle("active", section.id === fallbackSection);
+    });
+  }
+
+  sectionLinks.forEach((link) => {
+    link.classList.toggle("active", link.dataset.sectionLink === fallbackSection);
+  });
+}
+
+function initializeToolsMenuAccessibility() {
+  if (!toolsButton || !navDropdown) {
+    return;
+  }
+
+  navDropdown.addEventListener("mouseenter", () => {
+    toolsButton.setAttribute("aria-expanded", "true");
+  });
+
+  navDropdown.addEventListener("mouseleave", () => {
+    toolsButton.setAttribute("aria-expanded", "false");
+  });
+
+  navDropdown.addEventListener("focusin", () => {
+    toolsButton.setAttribute("aria-expanded", "true");
+  });
+
+  navDropdown.addEventListener("focusout", (event) => {
+    if (!navDropdown.contains(event.relatedTarget)) {
+      toolsButton.setAttribute("aria-expanded", "false");
+    }
+  });
 }
 
 const workerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -88,9 +166,34 @@ analyzeButton.addEventListener("click", async () => {
   }
 });
 
+analyzeJobButton.addEventListener("click", () => {
+  const rawText = jobProposalInput.value.trim();
+
+  if (!rawText) {
+    updateJobStatus("Paste a job proposal before running the analyzer.", true);
+    return;
+  }
+
+  const rankedWords = extractRelevantJobWords(rawText, MAX_JOB_KEYWORDS);
+
+  if (rankedWords.length === 0) {
+    updateJobStatus("No relevant keywords were detected. Try a longer description.", true);
+    jobResults.classList.add("hidden");
+    return;
+  }
+
+  renderJobResults(rankedWords);
+  updateJobStatus("Analysis complete. Use these words to tailor your CV.");
+});
+
 function updateStatus(message, isError = false) {
   statusMessage.textContent = message;
   statusMessage.style.color = isError ? "var(--danger)" : "var(--muted)";
+}
+
+function updateJobStatus(message, isError = false) {
+  jobStatusMessage.textContent = message;
+  jobStatusMessage.style.color = isError ? "var(--danger)" : "var(--muted)";
 }
 
 function toggleBusyState(isBusy) {
@@ -256,3 +359,51 @@ function renderFacts(facts) {
     documentFacts.appendChild(item);
   });
 }
+
+function extractRelevantJobWords(rawText, maxWords) {
+  const normalized = normalizeText(rawText);
+  const words = normalized.split(" ").filter(Boolean);
+  const frequencies = new Map();
+
+  words.forEach((word) => {
+    if (word.length < 3 || JOB_STOPWORDS.has(word)) {
+      return;
+    }
+
+    const currentCount = frequencies.get(word) || 0;
+    frequencies.set(word, currentCount + 1);
+  });
+
+  return [...frequencies.entries()]
+    .sort((a, b) => {
+      if (b[1] === a[1]) {
+        return a[0].localeCompare(b[0]);
+      }
+
+      return b[1] - a[1];
+    })
+    .slice(0, maxWords)
+    .map(([word, count]) => ({ word, count }));
+}
+
+function renderJobResults(items) {
+  jobResults.classList.remove("hidden");
+  jobSummary.textContent = `Top ${items.length} relevant words detected from the job proposal.`;
+  jobKeywords.innerHTML = "";
+
+  items.forEach((item) => {
+    const chip = document.createElement("span");
+    chip.className = "chip found";
+    chip.textContent = item.word;
+
+    const mentions = document.createElement("small");
+    mentions.textContent = `${item.count} hit${item.count === 1 ? "" : "s"}`;
+    chip.appendChild(mentions);
+
+    jobKeywords.appendChild(chip);
+  });
+}
+
+const JOB_STOPWORDS = new Set([
+  "about", "above", "after", "again", "against", "algo", "algun", "algunas", "algunos", "all", "also", "and", "any", "are", "around", "asa", "asi", "at", "based", "been", "being", "below", "between", "both", "but", "cada", "como", "con", "consider", "consigo", "could", "cuando", "de", "del", "desde", "details", "did", "does", "doing", "don", "during", "each", "either", "el", "ella", "ellas", "ellos", "empleo", "en", "entre", "era", "eres", "es", "esa", "esas", "eso", "esos", "esta", "estado", "estamos", "estan", "estar", "estas", "este", "esto", "estos", "experience", "for", "from", "further", "get", "had", "has", "have", "having", "her", "here", "hers", "herself", "him", "himself", "his", "how", "into", "its", "itself", "job", "la", "las", "le", "les", "lo", "los", "mas", "me", "mi", "mis", "more", "most", "muy", "must", "need", "nuestra", "nuestro", "o", "of", "on", "or", "otra", "other", "our", "out", "para", "pero", "por", "porque", "position", "puesto", "que", "quien", "required", "requirements", "role", "se", "sea", "ser", "si", "sin", "sobre", "some", "su", "sus", "take", "than", "that", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "tu", "tus", "un", "una", "under", "until", "very", "was", "we", "were", "what", "when", "where", "which", "while", "who", "with", "you", "your", "yours", "yourself", "yourselves"
+]);
