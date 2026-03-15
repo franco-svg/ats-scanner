@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATS CV Scanner</title>
+  <title>ATS Toolkit</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,82 +11,178 @@
   <div class="background-glow background-glow-right" aria-hidden="true"></div>
 
   <main class="page">
-    <div class="theme-toggle">
-      <label for="themeSwitch">Dark mode</label>
-      <input id="themeSwitch" type="checkbox" role="switch" aria-label="Toggle dark mode">
-    </div>
+    <header class="top-bar">
+      <nav class="ribbon" aria-label="Main navigation">
+        <a href="#home" class="nav-link active" data-section-link="home">Home</a>
+        <div class="nav-dropdown" aria-label="Tools menu">
+          <button id="toolsButton" class="nav-link nav-button" type="button" aria-haspopup="true" aria-expanded="false">Tools</button>
+          <div class="dropdown-menu" role="menu">
+            <a href="#ats-scanner" class="dropdown-link" data-section-link="ats-scanner" role="menuitem">ATS Scanner</a>
+            <a href="#job-analyzer" class="dropdown-link" data-section-link="job-analyzer" role="menuitem">Job Analyzer</a>
+          </div>
+        </div>
+      </nav>
 
-    <section class="hero">
-      <p class="eyebrow">ATS-inspired CV checker</p>
-      <h1>Upload a PDF CV and check if your target keywords are really there.</h1>
-      <p class="intro">
-        This scanner reads the text inside a resume PDF, compares it with the words or phrases you enter,
-        and shows a quick ATS-style match summary.
-      </p>
-    </section>
-
-    <section class="panel" aria-label="ATS scanner form">
-      <div class="field-group">
-        <label class="field-label" for="cvFile">CV PDF file</label>
-        <input id="cvFile" name="cvFile" type="file" accept="application/pdf">
-        <p class="field-help">Choose a resume in PDF format.</p>
+      <div class="theme-toggle">
+        <label for="themeSwitch">Dark mode</label>
+        <input id="themeSwitch" type="checkbox" role="switch" aria-label="Toggle dark mode">
       </div>
+    </header>
 
-      <div class="field-group">
-        <label class="field-label" for="keywords">Keywords to search</label>
-        <textarea
-          id="keywords"
-          name="keywords"
-          rows="8"
-          placeholder="Python, SQL, Power BI&#10;Communication&#10;Project management"
-        ></textarea>
-        <p class="field-help">Use commas or new lines. Phrases are supported too.</p>
-      </div>
+    <section id="home" class="content-section active" aria-label="Home page">
+      <section class="hero">
+        <p class="eyebrow">Career toolkit</p>
+        <h1>Improve your CV strategy with ATS-focused tools.</h1>
+        <p class="intro">
+          This web app helps you optimize job application materials quickly. Use the ATS Scanner to validate whether
+          your resume contains strategic keywords, and use Job Analyzer to extract the most relevant terms from a job
+          post before you tailor your CV.
+        </p>
+      </section>
 
-      <div class="actions">
-        <button id="analyzeButton" type="button">Analyze CV</button>
-        <p id="statusMessage" class="status" aria-live="polite">Waiting for a PDF and your keywords.</p>
-      </div>
-    </section>
-
-    <section id="results" class="results hidden" aria-label="Analysis results">
-      <div class="stats-grid">
-        <article class="stat-card">
-          <span class="stat-label">Match rate</span>
-          <strong id="matchRate" class="stat-value">0%</strong>
-        </article>
-        <article class="stat-card">
-          <span class="stat-label">Keywords found</span>
-          <strong id="foundCount" class="stat-value">0</strong>
-        </article>
-        <article class="stat-card">
-          <span class="stat-label">Keywords searched</span>
-          <strong id="keywordCount" class="stat-value">0</strong>
-        </article>
-        <article class="stat-card">
-          <span class="stat-label">Total mentions</span>
-          <strong id="mentionCount" class="stat-value">0</strong>
-        </article>
-      </div>
-
-      <div class="details-grid">
+      <section class="details-grid home-grid" aria-label="Tools overview">
         <article class="detail-card">
-          <h2>Found keywords</h2>
-          <p id="foundSummary" class="detail-summary">No analysis yet.</p>
-          <div id="foundKeywords" class="chip-list"></div>
+          <h2>ATS Scanner</h2>
+          <p class="detail-summary">Upload a PDF CV and compare it against your target skills, tools, and phrases.</p>
+          <ul class="home-list">
+            <li>Keyword match rate</li>
+            <li>Found vs missing terms</li>
+            <li>Total mentions and document details</li>
+          </ul>
         </article>
 
         <article class="detail-card">
-          <h2>Missing keywords</h2>
-          <p id="missingSummary" class="detail-summary">No analysis yet.</p>
-          <div id="missingKeywords" class="chip-list"></div>
+          <h2>Job Analyzer</h2>
+          <p class="detail-summary">Paste a job description and identify the terms that matter most for ATS filters.</p>
+          <ul class="home-list">
+            <li>Top repeated keywords</li>
+            <li>Quick relevance ranking</li>
+            <li>Actionable vocabulary for resume customization</li>
+          </ul>
         </article>
-      </div>
+      </section>
+    </section>
 
-      <article class="detail-card text-card">
-        <h2>Document details</h2>
-        <div id="documentFacts" class="fact-list"></div>
-      </article>
+    <section id="ats-scanner" class="content-section" aria-label="ATS scanner section">
+      <section class="hero">
+        <p class="eyebrow">ATS-inspired CV checker</p>
+        <h1>Upload a PDF CV and check if your target keywords are really there.</h1>
+        <p class="intro">
+          This scanner reads the text inside a resume PDF, compares it with the words or phrases you enter,
+          and shows a quick ATS-style match summary.
+        </p>
+      </section>
+
+      <section class="panel" aria-label="ATS scanner form">
+        <div class="field-group">
+          <label class="field-label" for="cvFile">CV PDF file</label>
+          <input id="cvFile" name="cvFile" type="file" accept="application/pdf">
+          <p class="field-help">Choose a resume in PDF format.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="keywords">Keywords to search</label>
+          <textarea
+            id="keywords"
+            name="keywords"
+            rows="8"
+            placeholder="Python, SQL, Power BI&#10;Communication&#10;Project management"
+          ></textarea>
+          <p class="field-help">Use commas or new lines. Phrases are supported too.</p>
+        </div>
+
+        <div class="actions">
+          <button id="analyzeButton" type="button">Analyze CV</button>
+          <p id="statusMessage" class="status" aria-live="polite">Waiting for a PDF and your keywords.</p>
+        </div>
+      </section>
+
+      <section id="results" class="results hidden" aria-label="Analysis results">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">Match rate</span>
+            <strong id="matchRate" class="stat-value">0%</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Keywords found</span>
+            <strong id="foundCount" class="stat-value">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Keywords searched</span>
+            <strong id="keywordCount" class="stat-value">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Total mentions</span>
+            <strong id="mentionCount" class="stat-value">0</strong>
+          </article>
+        </div>
+
+        <div class="details-grid">
+          <article class="detail-card">
+            <h2>Found keywords</h2>
+            <p id="foundSummary" class="detail-summary">No analysis yet.</p>
+            <div id="foundKeywords" class="chip-list"></div>
+          </article>
+
+          <article class="detail-card">
+            <h2>Missing keywords</h2>
+            <p id="missingSummary" class="detail-summary">No analysis yet.</p>
+            <div id="missingKeywords" class="chip-list"></div>
+          </article>
+        </div>
+
+        <article class="detail-card text-card">
+          <h2>Document details</h2>
+          <div id="documentFacts" class="fact-list"></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="job-analyzer" class="content-section" aria-label="Job analyzer section">
+      <section class="hero">
+        <p class="eyebrow">Job post keyword extractor</p>
+        <h1>Paste a job proposal and discover the most relevant ATS terms.</h1>
+        <p class="intro">
+          The analyzer highlights repeated words and phrases usually considered important in ATS filters so you can
+          align your CV language with the role.
+        </p>
+      </section>
+
+      <section class="panel" aria-label="Job analyzer form">
+        <div class="field-group">
+          <label class="field-label" for="jobProposal">Job proposal</label>
+          <textarea
+            id="jobProposal"
+            name="jobProposal"
+            rows="10"
+            placeholder="Paste the full job description here..."
+          ></textarea>
+          <p class="field-help">The longer and more detailed the description, the better the relevance ranking.</p>
+        </div>
+
+        <div class="actions">
+          <button id="analyzeJobButton" type="button">Analyze job proposal</button>
+          <p id="jobStatusMessage" class="status" aria-live="polite">Paste a job post to start.</p>
+        </div>
+      </section>
+
+      <section id="jobResults" class="results hidden" aria-label="Job analysis results">
+        <article class="detail-card">
+          <h2>Most relevant keywords</h2>
+          <p id="jobSummary" class="detail-summary">No analysis yet.</p>
+          <div id="jobKeywords" class="chip-list"></div>
+        </article>
+
+        <article class="detail-card">
+          <h2>Ready to paste in ATS Scanner</h2>
+          <p class="detail-summary">One keyword per line for direct copy/paste.</p>
+          <textarea id="jobKeywordsOutput" class="keywords-output" rows="12" readonly></textarea>
+          <div class="actions copy-actions">
+            <button id="copyJobKeywordsButton" type="button">Copy keywords</button>
+            <p id="copyJobStatus" class="status" aria-live="polite">Generate keywords first.</p>
+          </div>
+        </article>
+      </section>
     </section>
   </main>
 
