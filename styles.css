@@ -282,6 +282,16 @@ textarea {
   line-height: 1.6;
 }
 
+.keywords-output {
+  min-height: 220px;
+  white-space: pre;
+  font-family: "Consolas", "Monaco", monospace;
+}
+
+.copy-actions {
+  margin-top: 14px;
+}
+
 input[type="file"]:focus,
 textarea:focus,
 button:focus,
