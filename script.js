@@ -1,5 +1,8 @@
 const sectionLinks = document.querySelectorAll("[data-section-link]");
 const sections = document.querySelectorAll(".content-section");
+const ribbon = document.querySelector(".ribbon");
+const ribbonIndicator = document.querySelector(".ribbon-indicator");
+const homeLink = document.querySelector('[data-ribbon-target="home"]');
 const toolsButton = document.querySelector(".nav-button");
 const navDropdown = document.querySelector(".nav-dropdown");
 
@@ -24,7 +27,8 @@ const analyzeJobButton = document.getElementById("analyzeJobButton");
 const jobStatusMessage = document.getElementById("jobStatusMessage");
 const jobResults = document.getElementById("jobResults");
 const jobSummary = document.getElementById("jobSummary");
-const jobKeywords = document.getElementById("jobKeywords");
+const jobKeywordsOutput = document.getElementById("jobKeywordsOutput");
+const copyJobKeywordsButton = document.getElementById("copyJobKeywordsButton");
 
 const themeSwitch = document.getElementById("themeSwitch");
 const THEME_STORAGE_KEY = "ats-theme";
@@ -33,6 +37,7 @@ const MAX_JOB_KEYWORDS = 15;
 initializeTheme();
 initializeNavigation();
 initializeToolsMenuAccessibility();
+initializeCopyKeywordsButton();
 
 if (themeSwitch) {
   themeSwitch.addEventListener("change", () => {
@@ -67,6 +72,14 @@ function initializeNavigation() {
       window.history.replaceState(null, "", `#${target}`);
     });
   });
+
+  window.addEventListener("resize", () => {
+    updateRibbonIndicator();
+  });
+
+  window.addEventListener("load", () => {
+    updateRibbonIndicator();
+  });
 }
 
 function showSection(sectionId) {
@@ -91,6 +104,21 @@ function showSection(sectionId) {
   sectionLinks.forEach((link) => {
     link.classList.toggle("active", link.dataset.sectionLink === fallbackSection);
   });
+
+  const isHomeSection = fallbackSection === "home";
+  if (homeLink) {
+    homeLink.classList.toggle("active", isHomeSection);
+  }
+
+  if (toolsButton) {
+    toolsButton.classList.toggle("active", !isHomeSection);
+  }
+
+  if (navDropdown) {
+    navDropdown.classList.toggle("active", !isHomeSection);
+  }
+
+  updateRibbonIndicator(isHomeSection ? homeLink : toolsButton);
 }
 
 function initializeToolsMenuAccessibility() {
@@ -113,6 +141,44 @@ function initializeToolsMenuAccessibility() {
   navDropdown.addEventListener("focusout", (event) => {
     if (!navDropdown.contains(event.relatedTarget)) {
       toolsButton.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+function updateRibbonIndicator(target = document.querySelector(".nav-link.active, .nav-button.active")) {
+  if (!ribbon || !ribbonIndicator || !target) {
+    return;
+  }
+
+  const ribbonRect = ribbon.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const offset = targetRect.left - ribbonRect.left;
+
+  ribbonIndicator.style.width = `${targetRect.width}px`;
+  ribbonIndicator.style.transform = `translateX(${offset}px)`;
+}
+
+function initializeCopyKeywordsButton() {
+  if (!copyJobKeywordsButton || !jobKeywordsOutput) {
+    return;
+  }
+
+  copyJobKeywordsButton.addEventListener("click", async () => {
+    const keywords = jobKeywordsOutput.value.trim();
+
+    if (!keywords) {
+      updateJobStatus("Run the analyzer first to generate keywords.", true);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(keywords);
+      updateJobStatus("Keywords copied. Paste them into ATS Scanner.", false);
+    } catch (error) {
+      console.error(error);
+      jobKeywordsOutput.focus();
+      jobKeywordsOutput.select();
+      updateJobStatus("Select the generated keywords and copy them manually.", true);
     }
   });
 }
@@ -179,6 +245,12 @@ analyzeJobButton.addEventListener("click", () => {
   if (rankedWords.length === 0) {
     updateJobStatus("No relevant keywords were detected. Try a longer description.", true);
     jobResults.classList.add("hidden");
+    if (jobKeywordsOutput) {
+      jobKeywordsOutput.value = "";
+    }
+    if (copyJobKeywordsButton) {
+      copyJobKeywordsButton.disabled = true;
+    }
     return;
   }
 
@@ -388,20 +460,11 @@ function extractRelevantJobWords(rawText, maxWords) {
 
 function renderJobResults(items) {
   jobResults.classList.remove("hidden");
-  jobSummary.textContent = `Top ${items.length} relevant words detected from the job proposal.`;
-  jobKeywords.innerHTML = "";
-
-  items.forEach((item) => {
-    const chip = document.createElement("span");
-    chip.className = "chip found";
-    chip.textContent = item.word;
-
-    const mentions = document.createElement("small");
-    mentions.textContent = `${item.count} hit${item.count === 1 ? "" : "s"}`;
-    chip.appendChild(mentions);
-
-    jobKeywords.appendChild(chip);
-  });
+  jobSummary.textContent = `Found ${items.length} keywords ready to paste into ATS Scanner, one per line.`;
+  jobKeywordsOutput.value = items.map((item) => item.word).join("\n");
+  if (copyJobKeywordsButton) {
+    copyJobKeywordsButton.disabled = false;
+  }
 }
 
 const JOB_STOPWORDS = new Set([
